@@ -1,30 +1,21 @@
-# Turbine starter
+# Turbine Notes
 
-Turbine starter kit using TypeScript and Webpack.
+Take and organize your notes. A large Turbine example.
 
 ## Get it
 
 Get what you need.
 
 ```
-git clone https://github.com/funkia/turbine-starter my-turbine-project
-cd my-turbine-project
+git clone https://github.com/limemloh/turbine-notes
+cd turbine-notes
 npm install
 ```
 
-## Usage
+## Run
 
 Start the development server.
 
 ```
 npm start
 ```
-
-This will start the webpack development server and open the webapp in
-your default browser.
-
-```
-npm run build-prod
-```
-
-Will create a minified bundle for production usage.
