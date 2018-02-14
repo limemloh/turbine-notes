@@ -1,43 +1,26 @@
 import { go, combine } from "@funkia/jabz";
 import { runComponent, elements, modelView } from "@funkia/turbine";
 import { Behavior, Stream, sample, scan } from "@funkia/hareactive";
-const { p, div, h1, button } = elements;
 
-type ViewInput = {
-  count: Behavior<number>;
-};
+import "codemirror/lib/codemirror.css";
+import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/display/placeholder";
+import "codemirror/mode/markdown/markdown";
+import "codemirror/theme/solarized.css";
 
-function* counterModel({ increment, decrement }: ModelInput) {
-  const count = yield sample(
-    scan((n, m) => n + m, 0, combine(increment, decrement))
-  );
-  return { count };
-}
+const { p, div, h1, button, textarea } = elements;
 
-function counterView({ count }: ViewInput) {
-  return div([
-    button({ output: { incrementClick: "click" } }, " + "),
-    " ",
-    count,
-    " ",
-    button({ output: { decrementClick: "click" } }, " - ")
-  ]).map(({ incrementClick, decrementClick }) => ({
-    increment: incrementClick.mapTo(1),
-    decrement: decrementClick.mapTo(-1)
-  }));
-}
-
-type ModelInput = {
-  increment: Stream<number>;
-  decrement: Stream<number>;
-};
-
-const counter = modelView(counterModel, counterView);
+import { codemirror } from "./codemirror";
 
 const main = go(function*() {
   yield h1("Welcome to the Turbine starter kit!");
   yield p("Below is a counter.");
-  yield counter();
+  const { change } = yield codemirror({
+    mode: "markdown",
+    theme: "solarized light"
+  });
+  change.map((i: any) => i.getValue()).log("change");
+  return { change };
 });
 
 runComponent("#mount", main);
