@@ -13,8 +13,8 @@ import { codemirror } from "./codemirror";
 import { markdown } from "./markdown";
 
 const main = go(function*() {
-  yield h1("Welcome to the Turbine starter kit!");
-  yield p("Below is a counter.");
+  yield h1("Welcome to Turbine notes");
+  yield p("Below is a markdown editor");
   const { inputValue } = yield codemirror({
     mode: "markdown",
     theme: "solarized light",

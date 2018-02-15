@@ -1,7 +1,12 @@
 import { Component, DomApi } from "@funkia/turbine";
 import { Future } from "@funkia/hareactive";
 import * as MarkdownIt from "markdown-it";
+// @ts-ignore
+import * as markdownKatex from "markdown-it-katex";
+import "katex/dist/katex.css";
+
 const md = new MarkdownIt();
+md.use(markdownKatex);
 
 export type DomParserOutput = {};
 

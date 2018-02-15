@@ -36,10 +36,16 @@ class CodeMirrorComponent extends Component<CodemirrorOutput> {
       inputValue: producerBehavior(push => {
         editor.on("change", () => push(editor.getValue()));
         return editor.off.bind(editor, "change", push);
-      }, "options" in this && "value" in this.options ? this.options.value : "")
+      }, editor.getValue())
     };
 
     const output = new Proxy(initial, handler);
+
+    destroyed.subscribe(toplevel => {
+      if (toplevel) {
+        parent.removeChild(editor.getWrapperElement());
+      }
+    });
 
     return output;
   }
