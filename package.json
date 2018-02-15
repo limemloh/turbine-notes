@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@types/codemirror": "0.0.55",
+    "@types/markdown-it": "0.0.4",
     "awesome-typescript-loader": "^3.4.1",
     "css-loader": "^0.28.9",
     "sass-loader": "^6.0.6",

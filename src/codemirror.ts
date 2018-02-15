@@ -4,7 +4,8 @@ import {
   Future,
   behaviorFromEvent,
   streamFromEvent,
-  producerStream
+  producerStream,
+  producerBehavior
 } from "@funkia/hareactive";
 
 export type CodemirrorOutput = {};
@@ -31,8 +32,14 @@ class CodeMirrorComponent extends Component<CodemirrorOutput> {
         return target[name];
       }
     };
+    const initial = {
+      inputValue: producerBehavior(push => {
+        editor.on("change", () => push(editor.getValue()));
+        return editor.off.bind(editor, "change", push);
+      }, "options" in this && "value" in this.options ? this.options.value : "")
+    };
 
-    const output = new Proxy({}, handler);
+    const output = new Proxy(initial, handler);
 
     return output;
   }
