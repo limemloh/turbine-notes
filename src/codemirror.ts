@@ -1,21 +1,28 @@
 import * as CodeMirror from "codemirror";
-import { Component, DomApi } from "@funkia/turbine";
+import { Component, DomApi, Properties } from "@funkia/turbine";
 import {
   Future,
   behaviorFromEvent,
   streamFromEvent,
   producerStream,
-  producerBehavior
+  producerBehavior,
+  Behavior
 } from "@funkia/hareactive";
 
-export type CodemirrorOutput = {};
+export type CodemirrorOutput = {
+  inputValue: Behavior<string>;
+};
+
+export type CodemirrorProps = {
+  containerProps?: Properties<any>;
+} & CodeMirror.EditorConfiguration;
 
 function id<A>(a: A): A {
   return a;
 }
 
 class CodeMirrorComponent extends Component<CodemirrorOutput> {
-  constructor(private options?: CodeMirror.EditorConfiguration) {
+  constructor(private options?: CodemirrorProps) {
     super();
   }
   run(parent: DomApi, destroyed: Future<boolean>): CodemirrorOutput {

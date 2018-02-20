@@ -4,6 +4,7 @@ import * as MarkdownIt from "markdown-it";
 // @ts-ignore
 import * as markdownKatex from "markdown-it-katex";
 import "katex/dist/katex.css";
+import "github-markdown-css/github-markdown.css";
 
 const md = new MarkdownIt();
 md.use(markdownKatex);
@@ -16,6 +17,7 @@ class DomParser extends Component<DomParserOutput> {
   }
   run(parent: DomApi, destroyed: Future<boolean>): DomParserOutput {
     const container = document.createElement("div");
+    container.classList.add("markdown-body");
     container.innerHTML = this.domStr;
     parent.appendChild(container);
 

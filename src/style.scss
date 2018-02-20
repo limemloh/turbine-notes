@@ -1,0 +1,77 @@
+$resize-margin: 0.5em;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#mount {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  display: grid;
+  background: lightblue;
+  grid-gap: $resize-margin;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.box {
+  display: grid;
+  grid-template-columns: $resize-margin 1fr $resize-margin;
+  grid-template-rows: $resize-margin 1fr $resize-margin;
+
+  & > div {
+    //border: 1px dashed grey;
+  }
+
+  .west,
+  .east {
+    cursor: ew-resize;
+  }
+
+  .north,
+  .south {
+    cursor: ns-resize;
+  }
+
+  .north-east,
+  .south-west {
+    cursor: nesw-resize;
+  }
+
+  .north-west,
+  .south-east {
+    cursor: nwse-resize;
+  }
+  .content {
+    overflow: auto;
+    border: 1px solid gray;
+    background: white;
+    box-shadow: 0px 3px 4px -1px gray;
+  }
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.CodeMirror {
+  height: 100%;
+  width: 100%;
+}
+
+.cm-s-solarized.CodeMirror {
+  box-shadow: none;
+}
