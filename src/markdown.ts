@@ -5,9 +5,12 @@ import * as MarkdownIt from "markdown-it";
 import * as markdownKatex from "markdown-it-katex";
 import "katex/dist/katex.css";
 import "github-markdown-css/github-markdown.css";
+// @ts-ignore
+import * as markdownTaskLists from "markdown-it-task-lists";
 
 const md = new MarkdownIt();
 md.use(markdownKatex);
+md.use(markdownTaskLists);
 
 export type DomParserOutput = {};
 

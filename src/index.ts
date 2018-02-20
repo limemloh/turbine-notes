@@ -70,8 +70,8 @@ const main = go(function*() {
 ## TODO
 her er alle opgaver som skal laves:
 
-1. Ryd op
-2. Støvsuge
+1. [ ] Ryd op
+2. [x] Støvsuge
     `)
     )
     // box({ left: 1, top: 1, width: 3, height: 3 })
