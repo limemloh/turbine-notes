@@ -16,7 +16,6 @@ body {
 
 .container {
   flex: 1;
-  display: grid;
   background: lightblue;
   grid-gap: $resize-margin;
   grid-template-columns: repeat(8, 1fr);
@@ -24,6 +23,7 @@ body {
 }
 
 .box {
+  position: absolute;
   display: grid;
   grid-template-columns: $resize-margin 1fr $resize-margin;
   grid-template-rows: $resize-margin 1fr $resize-margin;
@@ -58,6 +58,21 @@ body {
     border-radius: 3px;
     box-shadow: 0px 3px 4px -1px gray;
   }
+}
+
+.expand {
+  height: 100%;
+  width: 100%;
+}
+
+.edit-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 15;
+  font-size: 2em;
+  padding-right: 0.2em;
+  cursor: pointer;
 }
 
 .markdown-body {
