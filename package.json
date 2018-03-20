@@ -1,7 +1,8 @@
 {
   "name": "turbine-notes",
   "version": "0.0.1",
-  "description": "Large example of the Turbine framework. An application to take and organize notes.",
+  "description":
+    "Large example of the Turbine framework. An application to take and organize notes.",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,11 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/funkia/turbine-starter.git"
   },
-  "keywords": [
-    "turbine",
-    "starter",
-    "boilerplate"
-  ],
+  "keywords": ["turbine", "starter", "boilerplate"],
   "author": "Funkia",
   "license": "MIT",
   "bugs": {
@@ -44,8 +41,11 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
     "ts-loader": "^3.5.0",
-    "typescript": "^2.7.1",
+    "typescript": "^2.8.0-dev.20180320",
     "webpack": "^3.11.0",
     "webpack-dev-server": "^2.11.1"
+  },
+  "prettier": {
+    "arrowParens": "always"
   }
 }
