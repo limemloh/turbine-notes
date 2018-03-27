@@ -14,10 +14,15 @@ const mousePosition = stepper(
   mousemove.map((e) => ({ x: e.x, y: e.y }))
 ).at();
 
-function draggableModel(compOut: FromView, _: any) {
+export type DraggableChildOut = { mousedown: Stream<MouseEvent> };
+
+function draggableModel<A extends DraggableChildOut>(
+  compOut: FromView,
+  _: Component<A>
+) {
   const { mousedown: startDrag } = compOut;
 
-  const drag = startDrag.map((evt) => {
+  const dragOffset = startDrag.map((evt) => {
     const offset = mousePosition.map(({ x, y }) => ({
       x: x - evt.x,
       y: y - evt.y
@@ -28,10 +33,10 @@ function draggableModel(compOut: FromView, _: any) {
       end
     };
   });
-  return Now.of({ ...compOut, drag });
+  return Now.of({ ...compOut, dragOffset });
 }
 
-export function draggableView<A extends { mousedown: Stream<any> }>(
+function draggableView<A extends DraggableChildOut>(
   { startDrag }: any,
   child: Component<A>
 ) {

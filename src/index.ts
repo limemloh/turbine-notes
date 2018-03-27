@@ -1,4 +1,4 @@
-import { go, combine, fgo } from "@funkia/jabz";
+import { go, combine, fgo, lift } from "@funkia/jabz";
 import {
   runComponent,
   elements as e,
@@ -17,49 +17,111 @@ import {
   Now,
   stepper,
   streamFromEvent,
-  snapshot
+  snapshot,
+  switchTo,
+  Future
 } from "@funkia/hareactive";
 
 import { note } from "./note";
-import { mapOrCall, ViewOut, ModelOut, nextOccurence } from "./utils";
+import {
+  mapOrCall,
+  ViewOut,
+  ModelOut,
+  nextOccurence,
+  pluck,
+  freezeAt,
+  sampler
+} from "./utils";
 
 import "./style.scss";
-import { draggable } from "./draggable";
+import { draggable, DraggableChildOut } from "./draggable";
 
-function edge<A>(props: Properties<A>, child?: Child) {
-  return draggable(div(props, child));
+const addPoint = (p1: Point, p2: Point) => ({ x: p1.x + p2.x, y: p1.y + p2.y });
+
+function edge<A extends DraggableChildOut, B extends string>(
+  name: B,
+  child?: Child<A>
+): Component<A & Record<B, any>> {
+  return <any>draggable(div({ class: name }, child)).output({
+    [name]: "dragOffset"
+  });
 }
 
-function box({ left, top, width, height }: any, child?: Child): Component<any> {
+type Point = { x: number; y: number };
+
+//type FromView = ViewOut<typeof boxView>;
+type FromView = {
+  content: Stream<{
+    offset: Behavior<{ x: number; y: number }>;
+    end: Future<any>;
+  }>;
+};
+
+function* boxModel(
+  { content }: FromView,
+  { pos: pos_, width, height }: BoxArgs
+) {
+  const offsets = sampler(
+    content.map(({ offset, end }) => freezeAt(offset, end))
+  );
+
+  const leftOffset = yield sample(
+    offsets.scan(
+      (next, acc) => lift(addPoint, next, acc),
+      Behavior.of({ x: 0, y: 0 })
+    )
+  );
+  const pos = leftOffset.flatten();
+
+  //const sumleft = // lift (add, left, prop("x", content))
+  return { pos, width, height };
+}
+
+type BoxArgs = {
+  pos: Behavior<Point>;
+  width: Behavior<number>;
+  height: Behavior<number>;
+  child?: Child<any>;
+};
+
+function boxView({ pos, width, height }: any, { child }: BoxArgs) {
   return div(
     {
       class: "box",
       style: {
         // @ts-ignore
-        left: toUnit(left, "px"),
+        top: toUnit(pluck("y", pos), "px"),
+        left: toUnit(pluck("x", pos), "px"),
         width: toUnit(width, "px"),
-        top: toUnit(top, "px"),
         height: toUnit(height, "px")
       }
     },
     [
-      edge({ class: "north-west" }),
-      edge({ class: "north" }),
-      edge({ class: "north-east" }),
-      edge({ class: "west" }),
-      edge({ class: "content" }, child),
-      edge({ class: "east" }),
-      edge({ class: "south-west" }),
-      edge({ class: "south" }),
-      edge({ class: "south-east" })
+      edge("northWest"),
+      edge("north"),
+      edge("northEast"),
+      edge("west"),
+      edge("content", child),
+      edge("east"),
+      edge("southWest"),
+      edge("south"),
+      edge("southEast")
     ]
   );
 }
 
+const box = modelView(boxModel, boxView);
+
 const main = go(function*() {
   yield h1("Welcome to Turbine notes");
   yield div({ class: "container" }, [
-    box({ left: 500, top: 100, width: 400, height: 300 }, note())
+    box({
+      left: Behavior.of(500),
+      top: Behavior.of(100),
+      width: Behavior.of(400),
+      height: Behavior.of(300),
+      child: note()
+    })
   ]);
   return {};
 });

@@ -6,9 +6,16 @@ import {
   map,
   Now,
   Future,
-  sinkFuture
+  sinkFuture,
+  snapshotAt,
+  switchTo,
+  at
 } from "@funkia/hareactive";
 import { Component } from "@funkia/turbine";
+
+export function pluck(name: string, b: Behavior<any>) {
+  return b.map((a) => a[name]);
+}
 
 export function toggle(trigger: Stream<any>, initial = false) {
   return trigger.scan((_, before) => !before, initial);
@@ -58,4 +65,17 @@ class NextOccurence<A> extends Behavior<Future<A>> {
 
 export function nextOccurence<A>(stream: Stream<A>): Behavior<Future<A>> {
   return new NextOccurence(stream);
+}
+
+export function freezeAt<A>(
+  behavior: Behavior<A>,
+  shouldFreeze: Future<any>
+): Behavior<Behavior<A>> {
+  return snapshotAt(behavior, shouldFreeze).map((f) =>
+    switchTo(behavior, f.map(Behavior.of))
+  );
+}
+
+export function sampler<A>(stream: Stream<Behavior<A>>): Stream<A> {
+  return stream.map(at);
 }
