@@ -30,11 +30,11 @@ import {
   nextOccurence,
   pluck,
   freezeAt,
-  sampler
+  selfie
 } from "./utils";
 
 import "./style.scss";
-import { draggable, DraggableChildOut } from "./draggable";
+import { draggable, DraggableChildOut, DragOffset } from "./draggable";
 
 const addPoint = (p1: Point, p2: Point) => ({ x: p1.x + p2.x, y: p1.y + p2.y });
 
@@ -51,29 +51,29 @@ type Point = { x: number; y: number };
 
 //type FromView = ViewOut<typeof boxView>;
 type FromView = {
-  content: Stream<{
-    offset: Behavior<{ x: number; y: number }>;
-    end: Future<any>;
-  }>;
+  content: DragOffset;
 };
 
-function* boxModel(
-  { content }: FromView,
-  { pos: pos_, width, height }: BoxArgs
-) {
-  const offsets = sampler(
+const sumOffset = fgo(function*(content: DragOffset) {
+  const offsets = selfie(
     content.map(({ offset, end }) => freezeAt(offset, end))
   );
-
   const leftOffset = yield sample(
     offsets.scan(
       (next, acc) => lift(addPoint, next, acc),
       Behavior.of({ x: 0, y: 0 })
     )
   );
-  const pos = leftOffset.flatten();
+  return leftOffset.flatten();
+});
 
-  //const sumleft = // lift (add, left, prop("x", content))
+function* boxModel(
+  { content }: FromView,
+  { pos: receivedPos, width, height }: BoxArgs
+) {
+  const offset: Behavior<Point> = yield sumOffset(content);
+  const pos = lift(addPoint, offset, receivedPos);
+
   return { pos, width, height };
 }
 
@@ -116,8 +116,7 @@ const main = go(function*() {
   yield h1("Welcome to Turbine notes");
   yield div({ class: "container" }, [
     box({
-      left: Behavior.of(500),
-      top: Behavior.of(100),
+      pos: Behavior.of({ x: 500, y: 200 }),
       width: Behavior.of(400),
       height: Behavior.of(300),
       child: note()

@@ -1,9 +1,20 @@
 import { ViewOut, ModelOut, nextOccurence } from "./utils";
-import { streamFromEvent, stepper, Now, Stream } from "@funkia/hareactive";
+import {
+  streamFromEvent,
+  stepper,
+  Now,
+  Stream,
+  Behavior,
+  Future
+} from "@funkia/hareactive";
 import { Component, modelView, elements as e } from "@funkia/turbine";
 
 type FromView = ViewOut<typeof draggableView>;
 type FromModel = ModelOut<typeof draggableModel>;
+export type DragOffset = Stream<{
+  offset: Behavior<{ x: number; y: number }>;
+  end: Future<any>;
+}>;
 
 const mousemove = streamFromEvent(window, "mousemove");
 const mouseup = streamFromEvent(window, "mouseup");

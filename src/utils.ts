@@ -76,6 +76,6 @@ export function freezeAt<A>(
   );
 }
 
-export function sampler<A>(stream: Stream<Behavior<A>>): Stream<A> {
+export function selfie<A>(stream: Stream<Behavior<A>>): Stream<A> {
   return stream.map(at);
 }
