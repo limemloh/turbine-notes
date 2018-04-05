@@ -12,6 +12,7 @@ import {
   at
 } from "@funkia/hareactive";
 import { Component } from "@funkia/turbine";
+import { curry } from "ramda";
 
 export function pluck(name: string, b: Behavior<any>) {
   return b.map((a) => a[name]);
@@ -78,4 +79,14 @@ export function freezeAt<A>(
 
 export function selfie<A>(stream: Stream<Behavior<A>>): Stream<A> {
   return stream.map(at);
+}
+
+export function lift(f: any, ...args: any[]) {
+  let fn = curry(f);
+  let acc = args.shift().map(fn);
+
+  for (const applicative of args) {
+    acc = applicative.ap(acc);
+  }
+  return acc;
 }

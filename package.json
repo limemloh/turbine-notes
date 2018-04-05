@@ -32,11 +32,13 @@
     "katex": "^0.9.0",
     "markdown-it": "^8.4.1",
     "markdown-it-katex": "^2.0.3",
-    "markdown-it-task-lists": "^2.1.1"
+    "markdown-it-task-lists": "^2.1.1",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "@types/codemirror": "0.0.55",
     "@types/markdown-it": "0.0.4",
+    "@types/ramda": "^0.25.21",
     "awesome-typescript-loader": "^4.0.1",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",

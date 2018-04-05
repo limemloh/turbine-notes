@@ -1,4 +1,4 @@
-import { go, combine, fgo, lift } from "@funkia/jabz";
+import { go, combine, fgo } from "@funkia/jabz";
 import {
   runComponent,
   elements as e,
@@ -30,7 +30,8 @@ import {
   nextOccurence,
   pluck,
   freezeAt,
-  selfie
+  selfie,
+  lift
 } from "./utils";
 
 import "./style.scss";
@@ -52,11 +53,19 @@ type Point = { x: number; y: number };
 //type FromView = ViewOut<typeof boxView>;
 type FromView = {
   content: DragOffset;
+  north: DragOffset;
+  south: DragOffset;
+  west: DragOffset;
+  east: DragOffset;
+  northWest: DragOffset;
+  northEast: DragOffset;
+  southWest: DragOffset;
+  southEast: DragOffset;
 };
 
-const sumOffset = fgo(function*(content: DragOffset) {
+const sumOffset = fgo(function*(dragOffset: DragOffset) {
   const offsets = selfie(
-    content.map(({ offset, end }) => freezeAt(offset, end))
+    dragOffset.map(({ offset, end }) => freezeAt(offset, end))
   );
   const leftOffset = yield sample(
     offsets.scan(
@@ -68,11 +77,65 @@ const sumOffset = fgo(function*(content: DragOffset) {
 });
 
 function* boxModel(
-  { content }: FromView,
-  { pos: receivedPos, width, height }: BoxArgs
+  {
+    content,
+    north,
+    south,
+    west,
+    east,
+    northWest,
+    northEast,
+    southWest,
+    southEast
+  }: FromView,
+  { pos: pos_, width: width_, height: height_ }: BoxArgs
 ) {
-  const offset: Behavior<Point> = yield sumOffset(content);
-  const pos = lift(addPoint, offset, receivedPos);
+  const posOffset: Behavior<Point> = yield sumOffset(content);
+
+  const northOffset: Behavior<Point> = yield sumOffset(north);
+  const southOffset: Behavior<Point> = yield sumOffset(south);
+  const westOffset: Behavior<Point> = yield sumOffset(west);
+  const eastOffset: Behavior<Point> = yield sumOffset(east);
+  const nwOffset: Behavior<Point> = yield sumOffset(northWest);
+  const neOffset: Behavior<Point> = yield sumOffset(northEast);
+  const swOffset: Behavior<Point> = yield sumOffset(southWest);
+  const seOffset: Behavior<Point> = yield sumOffset(southEast);
+
+  const pos = lift(
+    (pos1, pos2, n, w, nw, ne, sw) => ({
+      x: pos1.x + pos2.x + w.x + nw.x + sw.x,
+      y: pos1.y + pos2.y + n.y + nw.y + ne.y
+    }),
+    posOffset,
+    pos_,
+    northOffset,
+    westOffset,
+    nwOffset,
+    neOffset,
+    swOffset
+  );
+
+  const height = lift(
+    (h, n, s, nw, ne, sw, se) => h - n.y + s.y - nw.y - ne.y + sw.y + se.y,
+    height_,
+    northOffset,
+    southOffset,
+    nwOffset,
+    neOffset,
+    swOffset,
+    seOffset
+  );
+
+  const width = lift(
+    (wi, we, e, nw, ne, sw, se) => wi - we.x + e.x - nw.x + ne.x - sw.x + se.x,
+    width_,
+    westOffset,
+    eastOffset,
+    nwOffset,
+    neOffset,
+    swOffset,
+    seOffset
+  );
 
   return { pos, width, height };
 }
