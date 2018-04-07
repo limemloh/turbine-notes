@@ -12,6 +12,7 @@ import { Component, modelView, elements as e } from "@funkia/turbine";
 type FromView = ViewOut<typeof draggableView>;
 type FromModel = ModelOut<typeof draggableModel>;
 export type DragOffset = Stream<{
+  startEvent: MouseEvent;
   offset: Behavior<{ x: number; y: number }>;
   end: Future<any>;
 }>;
@@ -34,12 +35,14 @@ function draggableModel<A extends DraggableChildOut>(
   const { mousedown: startDrag } = compOut;
 
   const dragOffset = startDrag.map((evt) => {
+    evt.stopPropagation();
     const offset = mousePosition.map(({ x, y }) => ({
       x: x - evt.x,
       y: y - evt.y
     }));
     const end = endDrags.at();
     return {
+      startEvent: evt,
       offset,
       end
     };

@@ -27,7 +27,7 @@ function noteView({ editing }: NoteViewParams) {
         theme: "solarized light",
         lineWrapping: true,
         tabSize: 2,
-        value: "# Her"
+        value: ""
       }).output({ inputValue: "inputValue" })
     );
     yield e.div(
@@ -41,7 +41,7 @@ function noteView({ editing }: NoteViewParams) {
 type NoteModelParams = { editClick: Stream<any>; inputValue: Behavior<string> };
 
 function* noteModel({ editClick, inputValue }: NoteModelParams) {
-  const editing = yield sample(toggle(editClick));
+  const editing = yield sample(toggle(editClick, true));
   return { editing };
 }
 
