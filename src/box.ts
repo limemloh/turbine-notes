@@ -1,4 +1,4 @@
-import { DraggableChildOut, draggable, DragOffset } from "./draggable";
+import { DraggableChildOut, draggable } from "./draggable";
 import {
   Child,
   Component,
@@ -6,10 +6,9 @@ import {
   fgo,
   modelView
 } from "@funkia/turbine";
-import { selfie, freezeAt, lift, pluck, mapOrCall } from "./utils";
-import { sample, Behavior } from "@funkia/hareactive";
+import { lift, pluck, mapOrCall } from "./utils";
+import { sample, Behavior, Now } from "@funkia/hareactive";
 
-const addPoint = (p1: Point, p2: Point) => ({ x: p1.x + p2.x, y: p1.y + p2.y });
 const max = (a: number) => (b: number) => Math.max(a, b);
 
 function edge<A extends DraggableChildOut, B extends string>(
@@ -17,7 +16,7 @@ function edge<A extends DraggableChildOut, B extends string>(
   child?: Child<A>
 ): Component<A & Record<B, any>> {
   return <any>draggable(e.div({ class: name }, child)).output({
-    [name]: "dragOffset"
+    [name]: "sumOffset"
   });
 }
 
@@ -25,31 +24,18 @@ type Point = { x: number; y: number };
 
 //type FromView = ViewOut<typeof boxView>;
 type FromView = {
-  content: DragOffset;
-  north: DragOffset;
-  south: DragOffset;
-  west: DragOffset;
-  east: DragOffset;
-  northWest: DragOffset;
-  northEast: DragOffset;
-  southWest: DragOffset;
-  southEast: DragOffset;
+  content: Behavior<Point>;
+  north: Behavior<Point>;
+  south: Behavior<Point>;
+  west: Behavior<Point>;
+  east: Behavior<Point>;
+  northWest: Behavior<Point>;
+  northEast: Behavior<Point>;
+  southWest: Behavior<Point>;
+  southEast: Behavior<Point>;
 };
 
-const sumOffset = fgo(function*(dragOffset: DragOffset) {
-  const offsets = selfie(
-    dragOffset.map(({ offset, end }) => freezeAt(offset, end))
-  );
-  const leftOffset = yield sample(
-    offsets.scan(
-      (next, acc) => lift(addPoint, next, acc),
-      Behavior.of({ x: 0, y: 0 })
-    )
-  );
-  return leftOffset.flatten();
-});
-
-function* boxModel(
+function boxModel(
   {
     content,
     north,
@@ -63,54 +49,43 @@ function* boxModel(
   }: FromView,
   { pos: pos_, width: width_, height: height_ }: BoxArgs
 ) {
-  const posOffset: Behavior<Point> = yield sumOffset(content);
-
-  const northOffset: Behavior<Point> = yield sumOffset(north);
-  const southOffset: Behavior<Point> = yield sumOffset(south);
-  const westOffset: Behavior<Point> = yield sumOffset(west);
-  const eastOffset: Behavior<Point> = yield sumOffset(east);
-  const nwOffset: Behavior<Point> = yield sumOffset(northWest);
-  const neOffset: Behavior<Point> = yield sumOffset(northEast);
-  const swOffset: Behavior<Point> = yield sumOffset(southWest);
-  const seOffset: Behavior<Point> = yield sumOffset(southEast);
-
   const pos = lift(
     (pos1, pos2, n, w, nw, ne, sw) => ({
       x: pos1.x + pos2.x + w.x + nw.x + sw.x,
       y: pos1.y + pos2.y + n.y + nw.y + ne.y
     }),
-    posOffset,
+    content,
     pos_,
-    northOffset,
-    westOffset,
-    nwOffset,
-    neOffset,
-    swOffset
+    north,
+    west,
+    northWest,
+    northEast,
+    southWest
   );
 
   const height = lift(
     (h, n, s, nw, ne, sw, se) => h - n.y + s.y - nw.y - ne.y + sw.y + se.y,
     height_,
-    northOffset,
-    southOffset,
-    nwOffset,
-    neOffset,
-    swOffset,
-    seOffset
+    north,
+    south,
+    northWest,
+    northEast,
+    southWest,
+    southEast
   ).map(max(100));
 
   const width = lift(
     (wi, we, e, nw, ne, sw, se) => wi - we.x + e.x - nw.x + ne.x - sw.x + se.x,
     width_,
-    westOffset,
-    eastOffset,
-    nwOffset,
-    neOffset,
-    swOffset,
-    seOffset
+    west,
+    east,
+    northWest,
+    northEast,
+    southWest,
+    southEast
   ).map(max(100));
 
-  return { pos, width, height };
+  return Now.of({ pos, width, height });
 }
 
 type BoxArgs = {

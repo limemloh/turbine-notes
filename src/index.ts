@@ -29,7 +29,7 @@ const mainModel = fgo(function*({ dragOffset }: FromView) {
         pos: Behavior.of({ x: startEvent.x, y: startEvent.y }),
         width: pluck("x", drag),
         height: pluck("y", drag),
-        child: note()
+        child: note
       })
     };
   });

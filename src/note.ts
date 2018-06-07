@@ -44,4 +44,4 @@ function* noteModel({ editClick, inputValue }: NoteModelParams) {
   return { editing, inputValue };
 }
 
-export const note = modelView(noteModel, noteView);
+export const note = modelView(noteModel, noteView)();
