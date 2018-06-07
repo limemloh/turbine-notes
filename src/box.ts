@@ -10,6 +10,7 @@ import { selfie, freezeAt, lift, pluck, mapOrCall } from "./utils";
 import { sample, Behavior } from "@funkia/hareactive";
 
 const addPoint = (p1: Point, p2: Point) => ({ x: p1.x + p2.x, y: p1.y + p2.y });
+const max = (a: number) => (b: number) => Math.max(a, b);
 
 function edge<A extends DraggableChildOut, B extends string>(
   name: B,
@@ -96,7 +97,7 @@ function* boxModel(
     neOffset,
     swOffset,
     seOffset
-  );
+  ).map(max(100));
 
   const width = lift(
     (wi, we, e, nw, ne, sw, se) => wi - we.x + e.x - nw.x + ne.x - sw.x + se.x,
@@ -107,7 +108,7 @@ function* boxModel(
     neOffset,
     swOffset,
     seOffset
-  );
+  ).map(max(100));
 
   return { pos, width, height };
 }
