@@ -2,9 +2,9 @@ import {
   ViewOut,
   ModelOut,
   nextOccurence,
-  selfie,
   freezeAt,
-  lift
+  lift,
+  momentS
 } from "./utils";
 import {
   streamFromEvent,
@@ -14,7 +14,8 @@ import {
   Behavior,
   Future,
   sample,
-  snapshotWith
+  snapshotWith,
+  scan
 } from "@funkia/hareactive";
 import { Component, modelView, elements as e, fgo } from "@funkia/turbine";
 
@@ -37,19 +38,6 @@ const mousePosition = stepper(
 const addPoint = (p1: Point, p2: Point) => ({ x: p1.x + p2.x, y: p1.y + p2.y });
 type Point = { x: number; y: number };
 
-const calcSumOffset = fgo(function*(dragOffset: DragOffset) {
-  const offsets = selfie(
-    dragOffset.map(({ offset, end }) => freezeAt(offset, end))
-  );
-  const leftOffset = yield sample(
-    offsets.scan(
-      (next, acc) => lift(addPoint, next, acc),
-      Behavior.of({ x: 0, y: 0 })
-    )
-  );
-  return leftOffset.flatten();
-});
-
 export type DraggableChildOut = { mousedown: Stream<MouseEvent> };
 
 const draggableModel = fgo(function*<A extends DraggableChildOut>(
@@ -59,24 +47,33 @@ const draggableModel = fgo(function*<A extends DraggableChildOut>(
   const { mousedown: startDrag } = compOut;
   const mousePos = yield sample(mousePosition);
 
-  const dragOffset = snapshotWith(
-    (evt, end) => {
-      evt.stopPropagation();
-      const offset = mousePos.map(({ x, y }) => ({
-        x: x - evt.x,
-        y: y - evt.y
-      }));
-      return {
-        startEvent: evt,
-        offset,
+  const dragOffset = momentS((evt, at) => {
+    evt.stopPropagation();
+    const end = at(endDrags);
+    const offset = at(
+      freezeAt(
+        mousePos.map(({ x, y }) => ({
+          x: x - evt.x,
+          y: y - evt.y
+        })),
         end
-      };
-    },
-    endDrags,
-    startDrag
-  );
+      )
+    );
+    return {
+      startEvent: evt,
+      offset,
+      end
+    };
+  }, startDrag);
 
-  const sumOffset = yield calcSumOffset(dragOffset);
+  const sumOffsets = yield sample(
+    scan(
+      ({ offset }, acc) => lift(addPoint, offset, acc),
+      Behavior.of({ x: 0, y: 0 }),
+      dragOffset
+    )
+  );
+  const sumOffset = sumOffsets.flatten();
 
   return { ...compOut, dragOffset, sumOffset };
 });

@@ -44,6 +44,7 @@ export type ViewOut<T extends (...args: any[]) => any> = ComponentOut<
 >;
 export type ModelOut<T extends (...args: any[]) => any> = NowOut<ReturnType<T>>;
 
+// Should be moved to hareactive
 class NextOccurence<A> extends Behavior<Future<A>> {
   constructor(private stream: Stream<A>) {
     super();
@@ -77,8 +78,13 @@ export function freezeAt<A>(
   );
 }
 
-export function selfie<A>(stream: Stream<Behavior<A>>): Stream<A> {
-  return stream.map(at);
+export type At = <C>(b: Behavior<C>) => C;
+
+export function momentS<A, B>(
+  fn: (a: A, at: At) => B,
+  s: Stream<A>
+): Stream<B> {
+  return s.map((a) => fn(a, at));
 }
 
 export function lift(f: any, ...args: any[]) {

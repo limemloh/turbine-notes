@@ -20,19 +20,17 @@ type FromView = {
   dragOffset: DragOffset;
 };
 
-const mainModel = fgo(function*({ dragOffset }: FromView) {
-  const addNotes = dragOffset.map(({ startEvent, offset, end }) => {
-    const drag = freezeAt(offset, end).at();
-    return {
-      id: Date.now(),
-      view: box({
-        pos: Behavior.of({ x: startEvent.x, y: startEvent.y }),
-        width: pluck("x", drag),
-        height: pluck("y", drag),
-        child: note
-      })
-    };
-  });
+const boardModel = fgo(function*({ dragOffset }: FromView) {
+  const addNotes = dragOffset.map(({ startEvent, offset, end }) => ({
+    id: Date.now(),
+    view: box({
+      pos: Behavior.of({ x: startEvent.x, y: startEvent.y }),
+      width: pluck("x", offset),
+      height: pluck("y", offset),
+      child: note
+    })
+  }));
+
   const initial: Component[] = [];
 
   const notes = yield sample(
@@ -42,7 +40,7 @@ const mainModel = fgo(function*({ dragOffset }: FromView) {
   return { notes };
 });
 
-function mainView({ notes }: any) {
+function boardView({ notes }: any) {
   return draggable(
     div({ class: "container" }, [
       h1("Welcome to Turbine notes"),
@@ -51,6 +49,6 @@ function mainView({ notes }: any) {
   );
 }
 
-const main = modelView(mainModel, mainView);
+const board = modelView(boardModel, boardView);
 
-runComponent("#mount", main());
+runComponent("#mount", board());
