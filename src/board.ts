@@ -15,14 +15,14 @@ import { ViewOut, ModelOut, pluck, freezeAt } from "./utils";
 type FromView = {
   dragOffset: DragOffset;
 };
-
+const add = (a) => (b) => a + b;
 const boardModel = fgo(function*({ dragOffset }: FromView) {
   const addNotes = dragOffset.map(({ startEvent, offset, end }) => ({
     id: Date.now(),
     view: box({
-      pos: Behavior.of({ x: startEvent.x, y: startEvent.y }),
-      width: pluck("x", offset),
-      height: pluck("y", offset),
+      pos: Behavior.of({ x: startEvent.x - 11, y: startEvent.y - 11 }),
+      width: pluck("x", offset).map(add(11 * 2)),
+      height: pluck("y", offset).map(add(11 * 2)),
       child: note
     })
   }));
