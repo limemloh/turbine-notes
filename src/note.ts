@@ -19,7 +19,6 @@ function noteView({ editing, inputValue }: NoteViewParams) {
   const displayMark = editing.map((b) => (b ? "none" : "inline"));
 
   return [
-    e.div({ class: "edit-icon" }, "✎").output({ editClick: "click" }),
     e.div(
       { class: "expand", style: { display: displayCode } },
       codemirror({
@@ -30,6 +29,7 @@ function noteView({ editing, inputValue }: NoteViewParams) {
         value: ""
       }).output({ inputValue: "inputValue" })
     ),
+    e.div({ class: "edit-icon" }, "✎").output({ editClick: "click" }),
     e.div(
       { class: "expand", style: { display: displayMark } },
       inputValue.map(markdown)
